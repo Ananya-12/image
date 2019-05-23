@@ -139,10 +139,10 @@ class Evaluator:
      
       def loss(self, x):
           loss,gradients = eval_loss_and_grads(x)
-          self.gradients=gradients
+          self._gradients=gradients
           return loss 
       def gradients(self, x):
-          return self._gradient 
+          return self._gradients 
 
 
 evaluator=Evaluator()
@@ -153,18 +153,27 @@ x=np.random.uniform(0,255,(1,512,512,3))-128.0
 
 
 
-for i in range(10):
+for i in range(100):
     print('start of iteration', i  )
     start_time=time.time()
     x, min_val ,info=fmin_l_bfgs_b(evaluator.loss, x.flatten(),fprime=evaluator.gradients, maxfun=20)
     end_time = time.time()
     print(end_time-start_time)
-    
+    if i==0 or (i+1) % 5 ==0 :
+       y= np.copy(x).reshape(512,512,3)
+       y=y[:,:,::-1]
+       y[:,:,0]+=imagenet_mean_rgb_value[2]
+       y[:,:,1]+=imagenet_mean_rgb_value[1]
+       y[:,:,2]+=imagenet_mean_rgb_value[0]
+       y=np.clip(y,0,255).astype("uint8")
+       output_image1=y
+     
     
 
 
-plt.imshow(output_image)
-plt.show()
+cv2.imshow('image',output_image1)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
  
                
 
